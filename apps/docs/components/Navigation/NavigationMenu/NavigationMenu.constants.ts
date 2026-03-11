@@ -2048,10 +2048,6 @@ export const storage: NavMenuConstant = {
           url: '/guides/storage/analytics/connecting-to-analytics-bucket' as `/${string}`,
         },
         {
-          name: 'Realtime Data-Sync',
-          url: '/guides/storage/analytics/replication' as `/${string}`,
-        },
-        {
           name: 'Query with Postgres',
           url: '/guides/storage/analytics/query-with-postgres' as `/${string}`,
         },

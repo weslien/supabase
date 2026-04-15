@@ -46,6 +46,9 @@ minimumReleaseAgeExclude:
   - '@ai-sdk/*'
   - '@supabase/*'
   - '@supabase-labs/*'
+  # The following packages are excluded from the minimum release age check because they had a vulneralibity
+  # Delete them the next time you update this list
+  - follow-redirects
 
 onlyBuiltDependencies:
   - node-pty
@@ -58,7 +61,6 @@ overrides:
   '@redocly/respect-core>form-data': ^4.0.4
   '@redocly/respect-core>js-yaml': ^4.1.1
   '@rollup/plugin-terser>serialize-javascript': ^7.0.5
-  '@tanstack/start-server-core': ^1.159.0
   cacache>tar: ^7.5.11
   dompurify: ^3.3.2
   esbuild: ^0.25.2
@@ -73,6 +75,7 @@ overrides:
   'terser-webpack-plugin>serialize-javascript': ^7.0.5
   tmp: ^0.2.4
   webpack: ^5.104.1
+  unhead: ^2.1.13
 
 patchedDependencies:
   react-data-grid: patches/react-data-grid.patch

@@ -58,7 +58,6 @@ function Listbox({
   style,
   size = 'medium',
   defaultValue,
-  validation,
   disabled,
   optionsWidth,
 }: Props) {
@@ -234,18 +233,12 @@ interface OptionProps {
   addOnBefore?: ({ active, selected }: any) => React.ReactNode
 }
 
-type addOnBefore = {
-  selected: boolean
-  active: boolean
-}
-
 /**
  * @deprecated Use ./Select_shadcn_ or follow ComboBox convention or use ./ui-patterns/multi-select
  */
 function SelectOption({
   id,
   value,
-  label,
   disabled = false,
   children,
   className = '',

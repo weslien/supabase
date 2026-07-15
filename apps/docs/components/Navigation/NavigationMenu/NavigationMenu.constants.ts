@@ -3233,12 +3233,16 @@ export const integrations: NavMenuConstant = {
       url: '/guides/integrations',
     },
     {
-      name: 'Vercel Marketplace',
-      url: '/guides/integrations/vercel-marketplace',
+      name: 'Dashboard Integrations',
+      url: '/guides/integrations#dashboard-integrations',
     },
     {
-      name: 'Supabase Marketplace',
-      url: '/guides/integrations/supabase-marketplace',
+      name: 'Partner Catalog',
+      url: '/guides/integrations/partner-catalog',
+    },
+    {
+      name: 'Vercel Marketplace',
+      url: '/guides/integrations/vercel-marketplace',
     },
     {
       name: 'Build Your Own',

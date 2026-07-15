@@ -2904,7 +2904,12 @@ module.exports = [
   {
     permanent: true,
     source: '/docs/guides/cli/local-development',
-    destination: '/docs/guides/local-development/overview',
+    destination: '/docs/guides/local-development/database-migrations',
+  },
+  {
+    permanent: true,
+    source: '/docs/guides/local-development/overview',
+    destination: '/docs/guides/local-development/database-migrations',
   },
   {
     permanent: true,

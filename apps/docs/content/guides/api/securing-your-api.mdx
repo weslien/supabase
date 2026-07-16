@@ -70,7 +70,7 @@ alter default privileges for role postgres in schema public
 
 <Admonition type="tip">
 
-The default privileges shown in [pg_default_acl](https://www.postgresql.org/docs/current/catalog-pg-default-acl.html) that originate from [supabase_admin](/docs/guides/database/postgres/roles#supabaseadmin) (granting to anon, authenticated, and service_role) are intentional and part of Supabase's standard permission model. The supabase_admin role is an internal management role that cannot authenticate through the Data API, so it poses no direct security risk.
+These default privileges pose no direct security risk. They appear in [pg_default_acl](https://www.postgresql.org/docs/current/catalog-pg-default-acl.html), granted by [supabase_admin](/docs/guides/database/postgres/roles#supabaseadmin) to `anon`, `authenticated`, and `service_role`. The default privileges are intentional and part of Supabase's standard permission model. The `supabase_admin` role is an internal management role that can't authenticate through the Data API.
 
 </Admonition>
 

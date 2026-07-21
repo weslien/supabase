@@ -34,6 +34,7 @@ import { RegionsList, SmartRegionsList } from './markdown-schema/RegionsList'
 import { SharedData } from './markdown-schema/SharedData'
 import { StepHike } from './markdown-schema/StepHike'
 import { TabPanel } from './markdown-schema/TabPanel'
+import { TerraformProviderSchema } from './markdown-schema/TerraformProviderSchema'
 import {
   collectMarkdownSources,
   type FrontmatterFormat,
@@ -187,6 +188,7 @@ const SCHEMA: ComponentSchema = {
   ContentListings,
   NavData,
   SharedData,
+  TerraformProviderSchema,
 }
 
 function parseFrontmatter(raw: string, frontmatter: FrontmatterFormat) {

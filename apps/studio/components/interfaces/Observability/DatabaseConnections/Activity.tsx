@@ -17,6 +17,7 @@ import {
   Button,
   Card,
   cn,
+  copyToClipboard,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
@@ -326,7 +327,7 @@ const ActivityRow = ({ activity }: { activity: DatabaseActivity }) => {
           </Tooltip>
         </TableCell>
         <TableCell className="max-w-[300px]">
-          <HoverCard openDelay={100} closeDelay={100}>
+          <HoverCard openDelay={250} closeDelay={100}>
             <HoverCardTrigger>
               <p
                 className={cn(
@@ -352,8 +353,19 @@ const ActivityRow = ({ activity }: { activity: DatabaseActivity }) => {
               </HoverCardContent>
             )}
           </HoverCard>
-          <p className="text-xs text-foreground-lighter flex items-center gap-x-1 mt-0.5 truncate">
-            <span>PID: {activity.pid}</span>
+          <div className="text-xs text-foreground-lighter flex items-center gap-x-1 mt-0.5 truncate">
+            <Tooltip>
+              <TooltipTrigger
+                className="cursor-pointer"
+                onClick={() => {
+                  toast.success('Copied PID')
+                  copyToClipboard(activity.pid.toString())
+                }}
+              >
+                <span>PID: {activity.pid}</span>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Click to copy</TooltipContent>
+            </Tooltip>
             <span>·</span>
             <span>{activity.role_name}</span>
             {activity.application_name && (
@@ -362,7 +374,7 @@ const ActivityRow = ({ activity }: { activity: DatabaseActivity }) => {
                 <span>{activity.application_name}</span>
               </>
             )}
-          </p>
+          </div>
         </TableCell>
 
         <TableCell>

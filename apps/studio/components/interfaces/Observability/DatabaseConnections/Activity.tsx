@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import { isEqual } from 'lodash'
-import { Minus, MoreVertical, StopCircle } from 'lucide-react'
-import { parseAsArrayOf, parseAsInteger, parseAsJson, parseAsString, useQueryState } from 'nuqs'
+import { Minus, MoreVertical, StopCircle, X } from 'lucide-react'
+import { parseAsArrayOf, parseAsInteger, parseAsString, useQueryState, useQueryStates } from 'nuqs'
 import { Fragment, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import {
@@ -37,13 +37,14 @@ import {
 import { CodeBlock } from 'ui-patterns/CodeBlock'
 import { ShimmeringLoader } from 'ui-patterns/ShimmeringLoader'
 
-import { ReportsSelectFilter, selectFilterSchema } from '../../Reports/v2/ReportsSelectFilter'
+import { ReportsSelectFilter } from '../../Reports/v2/ReportsSelectFilter'
 import {
   QUERY_STATE_TOOLTIP,
   WARN_DURATION_ACTIVE_QUERY,
   WARN_DURATION_IDLE_TXN,
 } from './DatabaseConnections.constants'
 import { formatDuration } from '@/components/interfaces/QueryPerformance/QueryPerformance.utils'
+import { ButtonTooltip } from '@/components/ui/ButtonTooltip'
 import { DropdownMenuItemTooltip } from '@/components/ui/DropdownMenuItemTooltip'
 import { InlineLinkClassName } from '@/components/ui/InlineLink'
 import { useDatabaseRolesQuery } from '@/data/database-roles/database-roles-query'
@@ -86,16 +87,20 @@ export const Activity = ({ live }: ActivityProps) => {
   const { data: project } = useSelectedProjectQuery()
 
   const [selectedPid] = useQueryState('pid', parseAsInteger)
-  const [stateFilter, setStateFilter] = useQueryState(
-    'state',
-    parseAsJson(selectFilterSchema.parse).withDefault([])
-  )
-  const [rolesFilter, setRolesFilter] = useQueryState(
-    'roles',
-    parseAsArrayOf(parseAsString, ',').withDefault(DEFAULT_ROLES_FILTER)
-  )
 
-  const hasNoFiltersApplied = stateFilter.length === 0 && isEqual(rolesFilter, DEFAULT_ROLES_FILTER)
+  const [
+    { states: statesFilter, applications: applicationsFilter, roles: rolesFilter },
+    setQueryStates,
+  ] = useQueryStates({
+    states: parseAsArrayOf(parseAsString, ',').withDefault([]),
+    applications: parseAsArrayOf(parseAsString, ',').withDefault([]),
+    roles: parseAsArrayOf(parseAsString, ',').withDefault(DEFAULT_ROLES_FILTER),
+  })
+
+  const hasNoFiltersApplied =
+    statesFilter.length === 0 &&
+    applicationsFilter.length === 0 &&
+    isEqual(rolesFilter, DEFAULT_ROLES_FILTER)
 
   const { data, isPending, isSuccess } = useDatabaseActivityQuery(
     {
@@ -112,11 +117,13 @@ export const Activity = ({ live }: ActivityProps) => {
 
   const activities = data?.filter((activity) => {
     const matchesState =
-      !stateFilter ||
-      stateFilter.length === 0 ||
-      (activity.state !== null && stateFilter.includes(activity.state))
+      !statesFilter ||
+      statesFilter.length === 0 ||
+      (activity.state !== null && statesFilter.includes(activity.state))
     const matchesRole = rolesFilter.length === 0 || rolesFilter.includes(activity.role_name)
-    return matchesState && matchesRole
+    const matchesApplication =
+      applicationsFilter.length === 0 || applicationsFilter.includes(activity.application_name)
+    return matchesState && matchesRole && matchesApplication
   })
 
   const stateOptions = [
@@ -132,9 +139,26 @@ export const Activity = ({ live }: ActivityProps) => {
     quantity: data?.filter(
       (y) =>
         y.state === x.toLowerCase() &&
-        (rolesFilter.length === 0 || rolesFilter.includes(y.role_name))
+        (rolesFilter.length === 0 || rolesFilter.includes(y.role_name)) &&
+        (applicationsFilter.length === 0 || applicationsFilter.includes(y.application_name))
     ).length,
   }))
+
+  const applicationOptions = Array.from(new Set(data?.map((x) => x.application_name) ?? []))
+    .sort()
+    .map((x) => ({
+      label: x,
+      value: x,
+      quantity: data?.filter(
+        (y) =>
+          y.application_name === x &&
+          (rolesFilter.length === 0 || rolesFilter.includes(y.role_name)) &&
+          (!statesFilter ||
+            statesFilter.length === 0 ||
+            (y.state !== null && statesFilter.includes(y.state)))
+      ).length,
+    }))
+    .filter((x) => !!x.value)
 
   const priorityRoles = ['anon', 'authenticated', 'postgres']
 
@@ -145,9 +169,10 @@ export const Activity = ({ live }: ActivityProps) => {
       quantity: data?.filter(
         (y) =>
           y.role_name === x.name &&
-          (!stateFilter ||
-            stateFilter.length === 0 ||
-            (y.state !== null && stateFilter.includes(y.state)))
+          (!statesFilter ||
+            statesFilter.length === 0 ||
+            (y.state !== null && statesFilter.includes(y.state))) &&
+          (applicationsFilter.length === 0 || applicationsFilter.includes(y.application_name))
       ).length,
     }))
     .sort((a, b) => {
@@ -173,22 +198,43 @@ export const Activity = ({ live }: ActivityProps) => {
         <h2>Sessions</h2>
         <div className="flex gap-x-2">
           <ReportsSelectFilter
+            label="State"
+            options={stateOptions}
+            value={statesFilter ?? []}
+            onChange={(states) => setQueryStates({ states })}
+            isLoading={isPending}
+            popoverClassName="w-60"
+          />
+          <ReportsSelectFilter
             showSearch
             label="Roles"
             options={roleOptions}
             value={rolesFilter ?? []}
-            onChange={setRolesFilter}
+            onChange={(roles) => setQueryStates({ roles })}
             isLoading={isPending}
             popoverClassName="w-72"
           />
           <ReportsSelectFilter
-            label="State"
-            options={stateOptions}
-            value={stateFilter ?? []}
-            onChange={setStateFilter}
+            showSearch
+            label="Application"
+            options={applicationOptions}
+            value={applicationsFilter ?? []}
+            onChange={(applications) => setQueryStates({ applications })}
             isLoading={isPending}
             popoverClassName="w-60"
           />
+          {!hasNoFiltersApplied && (
+            <ButtonTooltip
+              variant="text"
+              className="px-1"
+              icon={<X />}
+              onClick={() =>
+                setQueryStates({ states: [], roles: DEFAULT_ROLES_FILTER, applications: [] })
+              }
+              aria-label="Reset filters"
+              tooltip={{ content: { side: 'bottom', text: 'Reset filters' } }}
+            />
+          )}
         </div>
       </div>
 
@@ -243,8 +289,11 @@ export const Activity = ({ live }: ActivityProps) => {
                       variant="default"
                       className="mt-2"
                       onClick={() => {
-                        setStateFilter([])
-                        setRolesFilter(DEFAULT_ROLES_FILTER)
+                        setQueryStates({
+                          states: [],
+                          roles: DEFAULT_ROLES_FILTER,
+                          applications: [],
+                        })
                       }}
                     >
                       Reset filters
